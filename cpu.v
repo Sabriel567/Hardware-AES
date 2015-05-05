@@ -20,27 +20,24 @@ module main();
     clock c0(clk);
 
     reg [7:0]counter = 0;
-    reg cipher_ready = 0;
+    reg cipher_ready = 1;
     reg cipher_running = 0;
     wire keyready;
+    wire keygening;
 
     wire [31:0]out[3:0];
     reg [31:0]in[3:0];
 //    subbytes s0(clk,1,in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]);
-    genroundkey g0(clk, 1, cipher_ready, in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3], keyready);
+    genroundkey g0(clk, 1, cipher_ready, in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3], keyready, keygening);
     
     always @(posedge clk) begin
-      if(!cipher_running) begin
-        cipher_ready <= 1; 
-        cipher_running <= 1;
-      end else begin
+      if(keygening) begin
         cipher_ready <= 0;
-      end
+      end else $finish;
       if(keyready) begin
-        $display("OUT: \n%x\n%x\n%x\n%x\n", out[0], out[1], out[2], out[3]);
+        $display("OUT: \n%x\n%x\n%x\n%x\nCOUNTER: %d", out[0], out[1], out[2], out[3], counter);
       end
-      counter <= counter + 1;
-      if(counter > 50) $finish;
+      if(keygening || cipher_ready) counter <= counter + 1;
     end
 
 endmodule
@@ -84,7 +81,7 @@ module addRoundkey (input clk, input encode, input [31:0]rk0, input [31:0]rk1, i
 endmodule
 
 module genroundkey(input clk, input encode, input cipherready, input [31:0]ck0,  input [31:0]ck1, input [31:0]ck2, input [31:0]ck3,
-               output [31:0]out0, output [31:0]out1, output [31:0]out2, output [31:0]out3, output keyready);
+               output [31:0]out0, output [31:0]out1, output [31:0]out2, output [31:0]out3, output keyready, output keygening);
   reg [127:0]sbox[15:0];
   reg [127:0]sibox[15:0];
   reg [7:0]rcon = 1;
@@ -137,12 +134,18 @@ module genroundkey(input clk, input encode, input cipherready, input [31:0]ck0, 
     top_bound = ((4-(round%4))*8)-1;
   endfunction
 
-  assign keyready = (round > 0 && round % 4 == 0) ? 1 : 0;
-  assign out0 = prev_mat[0];
-  assign out1 = prev_mat[1];
-  assign out2 = prev_mat[2];
-  assign out3 = prev_mat[3];
+  assign keyready = (round > 0 && (round + 1) % 4 == 0) ? 1 : 0;
+  assign keygening = run_key || cipherready;
 
+  assign out0[31:8] = prev_mat[0][31:8];
+  assign out1[31:8] = prev_mat[1][31:8];
+  assign out2[31:8] = prev_mat[2][31:8];
+  assign out3[31:8] = prev_mat[3][31:8];
+
+  assign out0[7:0] = prev_mat[0][top_bound(round) -: 8] ^ prev_mat[0][top_bound(round-1) -: 8];  
+  assign out1[7:0] = prev_mat[1][top_bound(round) -: 8] ^ prev_mat[1][top_bound(round-1) -: 8];  
+  assign out2[7:0] = prev_mat[2][top_bound(round) -: 8] ^ prev_mat[2][top_bound(round-1) -: 8];  
+  assign out3[7:0] = prev_mat[3][top_bound(round) -: 8] ^ prev_mat[3][top_bound(round-1) -: 8];  
 
   reg [8:0]round = 0;
   reg run_key = 0;
