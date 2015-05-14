@@ -2,7 +2,7 @@
 
 `timescale 1ps/1ps
 
-module mem(input clk, 
+module mem(input clk, output empty,
 
 	//read port
 	input ren, output [31:0]row0, output [31:0]row1, output [31:0]row2, output [31:0]row3,
@@ -19,6 +19,7 @@ module mem(input clk,
 	reg [15:0]pc;
 	reg [31:0]mem[1023:0];
 
+	assign empty = (mem[pc] == 32'hxxxx) ? 1 : 0;
 	assign row0 = mem[pc];
 	assign row1 = mem[pc+1];
 	assign row2 = mem[pc+2];
@@ -31,7 +32,7 @@ module mem(input clk,
 			//$writememh("output.txt", w_row2);
 			//$writememh("output.txt", w_row3);
 		end
-		if(ren) begin
+		else if(ren) begin
 			pc <= pc + 4;
 		end
 	end
