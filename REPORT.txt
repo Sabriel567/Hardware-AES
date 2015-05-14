@@ -1,0 +1,15 @@
+Describe your implementation:
+Our group did AES implementation on a hardware level. We chose AES because it is one of the few encryption schemes that was designed for hardware. Our implementation is meant to be running all the time in the CPU, encrypting information and sends it the the hard drive. Our implementation reads 16 byte blocks of data in from a queue and then runs it through the encryption scheme and writes it to a disk (in our case the screen). To try and achieve as much efficiency as possible the round key is generated in parallel with the encryption, so that as soon as the add round key stage was hit a new block was finished. Also the 4 stages of AES encryption are running in parallel so that 4 blocks of plaintext could be getting encrypted at a time. Our implementation only encrypts data at this time as we were not able to get encrpytion working.
+
+What worked?
+We were able to pipeline the 4 stages of AES encryption: subbytes, shift rows, mixed columns, and add round key. 
+We were also able to get the the round key to generate in parallel to encryption so that as soon as a key is generated it is used and another can start generating.
+
+What didn't work?
+We had trouble writting to a file, verilog was giving us a lot of trouble. So we had to just go with printing the fully encrypted block to the screen. 
+We had trouble keeping a full pipleline while encrypting due to timing issues between the round key generation and the encryption process itself. 
+Currently we can only encrypt 4 blocks of plaintext at once in our pipeline.
+Also we were not able to get decryption working due to time constraints.
+
+What did you learn?
+Our biggest problems throughout this project were getting all of the different stages to line up and run at the right times. Most of our work was done in modules as it allowed both of us to write our parts and put it together easier. This did lead to some timing issues and most of our debugging was not figuring out problems, or bugs, it was all to get the timing to work just right with both the rounds of AES encryption as well as the round key generation. AES was built for hardware and can run magnitudes faster on hardware when compared to software but it was still hard to get everything to line up just right.
