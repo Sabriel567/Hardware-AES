@@ -1,3 +1,4 @@
+`timescale 1ps/1ps
 module subbytes(input clk, input encode, input [31:0]in0,  input [31:0]in1, input [31:0]in2, input [31:0]in3,
                 output [31:0]out0, output [31:0]out1, output [31:0]out2, output [31:0]out3);
   reg [127:0]sbox[15:0];

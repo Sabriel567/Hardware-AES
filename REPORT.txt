@@ -1,5 +1,6 @@
 Describe your implementation:
 Our group did AES implementation on a hardware level. We chose AES because it is one of the few encryption schemes that was designed for hardware. Our implementation is meant to be running all the time in the CPU, encrypting information and sends it the the hard drive. Our implementation reads 16 byte blocks of data in from a queue and then runs it through the encryption scheme and writes it to a disk (in our case the screen). To try and achieve as much efficiency as possible the round key is generated in parallel with the encryption, so that as soon as the add round key stage was hit a new block was finished. Also the 4 stages of AES encryption are running in parallel so that 4 blocks of plaintext could be getting encrypted at a time. Our implementation only encrypts data at this time as we were not able to get encrpytion working.
+Since we had trouble making mem a queue we instead represent the end of the plaintext with a 16 byte block of zeros.
 
 What worked?
 We were able to pipeline the 4 stages of AES encryption: subbytes, shift rows, mixed columns, and add round key. 

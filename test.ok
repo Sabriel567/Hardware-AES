@@ -1,0 +1,27 @@
+WARNING: mem.v:15: $readmemh(input.txt): Not enough words in the file for the requested range [0:40].
+VCD info: dumpfile cpu.vcd opened for output.
+3902dc19
+25dc116a
+8409850b
+1dfb9732
+
+3902dc19
+25dc116a
+8409850b
+1dfb9732
+
+3902dc19
+25dc116a
+8409850b
+1dfb9732
+
+3902dc19
+25dc116a
+8409850b
+1dfb9732
+
+3902dc19
+25dc116a
+8409850b
+1dfb9732
+

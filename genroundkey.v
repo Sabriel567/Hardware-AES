@@ -53,7 +53,7 @@ module genroundkey(input clk, input encode, input cipherready, input [31:0]ck0, 
   endfunction
 
   assign keyready = (round > 0 && (round + 1) % 4 == 0) ? 1 : 0;
-  assign keygening = run_key || cipherready;
+  assign keygening = run_key;
 
   assign out0[31:8] = prev_mat[0][31:8];
   assign out1[31:8] = prev_mat[1][31:8];
@@ -78,7 +78,8 @@ module genroundkey(input clk, input encode, input cipherready, input [31:0]ck0, 
       prev_mat[3] <= ck3;
       round <= 0;
       run_key <= 1;
-      $display("Expansion set\n");
+      rcon <= 1;
+//      $display("Expansion set\n");
     end
     if(run_key) begin
       if(round % 4  == 0) begin
@@ -99,7 +100,11 @@ module genroundkey(input clk, input encode, input cipherready, input [31:0]ck0, 
       end else begin
         round <= 0;
         run_key <= 0;
-        $display("END GENERATION\n");
+//        $display("END GENERATION\n");
+      end
+      if(keyready) begin
+//        $display("Key Gen ready");
+        //$finish;
       end
     end
 

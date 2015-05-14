@@ -12,14 +12,14 @@ module mem(input clk, output empty,
 
 
 	initial begin
-		//$readmemh("input.txt", mem);
+		$readmemh("input.txt", mem);
 		pc = 0;
 	end
 
 	reg [15:0]pc;
 	reg [31:0]mem[1023:0];
 
-	assign empty = (mem[pc] == 32'hxxxx) ? 1 : 0;
+	assign empty = (mem[pc] == 32'h0000 && mem[pc + 1] == 32'h0000 && mem[pc + 2] == 32'h0000 && mem[pc + 3] == 32'h0000 ) ? 1 : 0;
 	assign row0 = mem[pc];
 	assign row1 = mem[pc+1];
 	assign row2 = mem[pc+2];
@@ -27,10 +27,10 @@ module mem(input clk, output empty,
 
 	always @(posedge clk) begin
 		if(wen) begin
-			//$writememh("output.txt", w_row0);
-			//$writememh("output.txt", w_row1);
-			//$writememh("output.txt", w_row2);
-			//$writememh("output.txt", w_row3);
+		//	$writememh("output.txt", w_row0);
+		//	$writememh("output.txt", w_row1);
+		//	$writememh("output.txt", w_row2);
+		//	$writememh("output.txt", w_row3);
 		end
 		else if(ren) begin
 			pc <= pc + 4;
