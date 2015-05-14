@@ -43,7 +43,18 @@ module mixedColumns(input clk, input [31:0]line0, input [31:0]line1, input [31:0
 		invmatrix[3][15:8] <= 9;
 		invmatrix[3][7:0] <= 14;
 	end
-	
+
+	function [7:0]gmul;
+		input [7:0]in0;
+		input [7:0]in1;
+		gmul = (in1 == 3) ? (mul2(in0, in1) ^ in0) : (in1 == 2) ? mul2(in0, in1) : in0;
+	endfunction	
+
+	function [7:0]mul2;
+		input [7:0]in0;
+		input [7:0]in1;
+		mul2 = ((in0 & 8'h80) == 8'h80) ? ((in0 << 1) ^ 8'h1b) : (in0 << 1);
+	endfunction
 
 	//Trying to figure out if there is a way to streamline mixCols.
 	//As of right now values are hardcoded in, but this pains me.
@@ -56,28 +67,29 @@ module mixedColumns(input clk, input [31:0]line0, input [31:0]line1, input [31:0
 //	always @(posedge clk) begin
 	
 //		if(!decrypt) begin	//encrypt
-                    //0th column
-                    assign outline0[31:24] = ((line0[31:24] * rijmatrix[0][31:24]) + (line1[31:24] * rijmatrix[0][23:16]) + (line2[31:24] * rijmatrix[0][15:8]) + (line3[31:24] * rijmatrix[0][7:0]));
-                    assign outline1[31:24] = ((line0[31:24] * rijmatrix[1][31:24]) + (line1[31:24] * rijmatrix[1][23:16]) + (line2[31:24] * rijmatrix[1][15:8]) + (line3[31:24] * rijmatrix[1][7:0]));
-                    assign outline2[31:24] = ((line0[31:24] * rijmatrix[2][31:24]) + (line1[31:24] * rijmatrix[2][23:16]) + (line2[31:24] * rijmatrix[2][15:8]) + (line3[31:24] * rijmatrix[2][7:0]));
-                    assign outline3[31:24] = ((line0[31:24] * rijmatrix[3][31:24]) + (line1[31:24] * rijmatrix[3][23:16]) + (line2[31:24] * rijmatrix[3][15:8]) + (line3[31:24] * rijmatrix[3][7:0]));
+    //0th column
+	assign outline0[31:24] = (gmul(line0[31:24], rijmatrix[0][31:24]) ^ gmul(line1[31:24],rijmatrix[0][23:16]) ^ gmul(line2[31:24],rijmatrix[0][15:8]) ^ gmul(line3[31:24],rijmatrix[0][7:0]));
+	assign outline1[31:24] = (gmul(line0[31:24],rijmatrix[1][31:24]) ^ gmul(line1[31:24],rijmatrix[1][23:16]) ^ gmul(line2[31:24],rijmatrix[1][15:8]) ^ gmul(line3[31:24],rijmatrix[1][7:0]));
+	assign outline2[31:24] = (gmul(line0[31:24],rijmatrix[2][31:24]) ^ gmul(line1[31:24],rijmatrix[2][23:16]) ^ gmul(line2[31:24],rijmatrix[2][15:8]) ^ gmul(line3[31:24],rijmatrix[2][7:0]));
+	assign outline3[31:24] = (gmul(line0[31:24],rijmatrix[3][31:24]) ^ gmul(line1[31:24],rijmatrix[3][23:16]) ^ gmul(line2[31:24],rijmatrix[3][15:8]) ^ gmul(line3[31:24],rijmatrix[3][7:0]));
 
-                    //1st column
-                    assign outline0[23:16] = ((line0[23:16] * rijmatrix[0][31:24]) + (line1[23:16] * rijmatrix[0][23:16]) + (line2[23:16] * rijmatrix[0][15:8]) + (line3[23:16] * rijmatrix[0][7:0]));
-                    assign outline1[23:16] = ((line0[23:16] * rijmatrix[1][31:24]) + (line1[23:16] * rijmatrix[1][23:16]) + (line2[23:16] * rijmatrix[1][15:8]) + (line3[23:16] * rijmatrix[1][7:0]));
-                    assign outline2[23:16] = ((line0[23:16] * rijmatrix[2][31:24]) + (line1[23:16] * rijmatrix[2][23:16]) + (line2[23:16] * rijmatrix[2][15:8]) + (line3[23:16] * rijmatrix[2][7:0]));
-                    assign outline3[23:16] = ((line0[23:16] * rijmatrix[3][31:24]) + (line1[23:16] * rijmatrix[3][23:16]) + (line2[23:16] * rijmatrix[3][15:8]) + (line3[23:16] * rijmatrix[3][7:0]));
-    
-                    //2nd column
-                    assign outline0[15:8] = ((line0[15:8] * rijmatrix[0][31:24]) + (line1[15:8] * rijmatrix[0][23:16]) + (line2[15:8] * rijmatrix[0][15:8]) + (line3[15:8] * rijmatrix[0][7:0]));
-                    assign outline1[15:8] = ((line0[15:8] * rijmatrix[1][31:24]) + (line1[15:8] * rijmatrix[1][23:16]) + (line2[15:8] * rijmatrix[1][15:8]) + (line3[15:8] * rijmatrix[1][7:0]));
-                    assign outline2[15:8] = ((line0[15:8] * rijmatrix[2][31:24]) + (line1[15:8] * rijmatrix[2][23:16]) + (line2[15:8] * rijmatrix[2][15:8]) + (line3[15:8] * rijmatrix[2][7:0]));
-                    assign outline3[15:8] = ((line0[15:8] * rijmatrix[3][31:24]) + (line1[15:8] * rijmatrix[3][23:16]) + (line2[15:8] * rijmatrix[3][15:8]) + (line3[15:8] * rijmatrix[3][7:0]));
-                    //3rd column
-                    assign outline0[7:0] = ((line0[7:0] * rijmatrix[0][31:24]) + (line1[7:0] * rijmatrix[0][23:16]) + (line2[7:0] * rijmatrix[0][15:8]) + (line3[7:0] * rijmatrix[0][7:0]));
-                    assign outline1[7:0] = ((line0[7:0] * rijmatrix[1][31:24]) + (line1[7:0] * rijmatrix[1][23:16]) + (line2[7:0] * rijmatrix[1][15:8]) + (line3[7:0] * rijmatrix[1][7:0]));
-                    assign outline2[7:0] = ((line0[7:0] * rijmatrix[2][31:24]) + (line1[7:0] * rijmatrix[2][23:16]) + (line2[7:0] * rijmatrix[2][15:8]) + (line3[7:0] * rijmatrix[2][7:0]));
-                    assign outline3[7:0] = ((line0[7:0] * rijmatrix[3][31:24]) + (line1[7:0] * rijmatrix[3][23:16]) + (line2[7:0] * rijmatrix[3][15:8]) + (line3[7:0] * rijmatrix[3][7:0]));
+	//1st column
+	assign outline0[23:16] = (gmul(line0[23:16],rijmatrix[0][31:24]) ^ gmul(line1[23:16],rijmatrix[0][23:16]) ^ gmul(line2[23:16],rijmatrix[0][15:8]) ^ gmul(line3[23:16],rijmatrix[0][7:0]));
+	assign outline1[23:16] = (gmul(line0[23:16],rijmatrix[1][31:24]) ^ gmul(line1[23:16],rijmatrix[1][23:16]) ^ gmul(line2[23:16],rijmatrix[1][15:8]) ^ gmul(line3[23:16],rijmatrix[1][7:0]));
+	assign outline2[23:16] = (gmul(line0[23:16],rijmatrix[2][31:24]) ^ gmul(line1[23:16],rijmatrix[2][23:16]) ^ gmul(line2[23:16],rijmatrix[2][15:8]) ^ gmul(line3[23:16],rijmatrix[2][7:0]));
+	assign outline3[23:16] = (gmul(line0[23:16],rijmatrix[3][31:24]) ^ gmul(line1[23:16],rijmatrix[3][23:16]) ^ gmul(line2[23:16],rijmatrix[3][15:8]) ^ gmul(line3[23:16],rijmatrix[3][7:0]));
+
+	//2nd column
+	assign outline0[15:8] = (gmul(line0[15:8],rijmatrix[0][31:24]) ^ gmul(line1[15:8],rijmatrix[0][23:16]) ^ gmul(line2[15:8],rijmatrix[0][15:8]) ^ gmul(line3[15:8],rijmatrix[0][7:0]));
+	assign outline1[15:8] = (gmul(line0[15:8],rijmatrix[1][31:24]) ^ gmul(line1[15:8],rijmatrix[1][23:16]) ^ gmul(line2[15:8],rijmatrix[1][15:8]) ^ gmul(line3[15:8],rijmatrix[1][7:0]));
+	assign outline2[15:8] = (gmul(line0[15:8],rijmatrix[2][31:24]) ^ gmul(line1[15:8],rijmatrix[2][23:16]) ^ gmul(line2[15:8],rijmatrix[2][15:8]) ^ gmul(line3[15:8],rijmatrix[2][7:0]));
+	assign outline3[15:8] = (gmul(line0[15:8],rijmatrix[3][31:24]) ^ gmul(line1[15:8],rijmatrix[3][23:16]) ^ gmul(line2[15:8],rijmatrix[3][15:8]) ^ gmul(line3[15:8],rijmatrix[3][7:0]));
+	//3rd column
+	assign outline0[7:0] = (gmul(line0[7:0],rijmatrix[0][31:24]) ^ gmul(line1[7:0],rijmatrix[0][23:16]) ^ gmul(line2[7:0],rijmatrix[0][15:8]) ^ gmul(line3[7:0],rijmatrix[0][7:0]));
+	assign outline1[7:0] = (gmul(line0[7:0],rijmatrix[1][31:24]) ^ gmul(line1[7:0],rijmatrix[1][23:16]) ^ gmul(line2[7:0],rijmatrix[1][15:8]) ^ gmul(line3[7:0],rijmatrix[1][7:0]));
+	assign outline2[7:0] = (gmul(line0[7:0],rijmatrix[2][31:24]) ^ gmul(line1[7:0],rijmatrix[2][23:16]) ^ gmul(line2[7:0],rijmatrix[2][15:8]) ^ gmul(line3[7:0],rijmatrix[2][7:0]));
+	assign outline3[7:0] = (gmul(line0[7:0],rijmatrix[3][31:24]) ^ gmul(line1[7:0],rijmatrix[3][23:16]) ^ gmul(line2[7:0],rijmatrix[3][15:8]) ^ gmul(line3[7:0],rijmatrix[3][7:0]));
+
 /*		end
 		else begin //decrypt
 			//0th column
