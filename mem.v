@@ -8,12 +8,12 @@ module mem(input clk,
 	input ren, output [31:0]row0, output [31:0]row1, output [31:0]row2, output [31:0]row3,
 	
 	//write port
-	input wen, input [31:0]row0, input [31:0]row1, input [31:0]row2, input [31:0]row3);
+	input wen, input [31:0]w_row0, input [31:0]w_row1, input [31:0]w_row2, input [31:0]w_row3);
 
 
 	initial begin
-		$readmemh("input.txt", mem);
-		pc = 0
+		//$readmemh("input.txt", mem);
+		pc = 0;
 	end
 
 	reg [15:0]pc;
@@ -26,10 +26,10 @@ module mem(input clk,
 
 	always @(posedge clk) begin
 		if(wen) begin
-			$writememh("output.txt", row0);
-			$writememh("output.txt", row1);
-			$writememh("output.txt", row2);
-			$writememh("output.txt", row3);
+			//$writememh("output.txt", w_row0);
+			//$writememh("output.txt", w_row1);
+			//$writememh("output.txt", w_row2);
+			//$writememh("output.txt", w_row3);
 		end
 		if(ren) begin
 			pc <= pc + 4;
@@ -38,4 +38,4 @@ module mem(input clk,
 
 
 
-end module
+endmodule
